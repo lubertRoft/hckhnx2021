@@ -1,7 +1,97 @@
 ﻿@page "/"
+@using System.Text
+@using System.Threading
+@using Newtonsoft.Json
+@inject HttpClient Http
 
-<h1>Hello, world!</h1>
+@if (_inferenceResult != null)
+{
+    <div>
+        <span>@_inferenceResult.inference.Top1: </span><span>@_inferenceResult.inference_propability.Top1</span>
 
-Welcome to your new app.
+    </div>
+    <div>
+        <span>@_inferenceResult.inference.Top2: </span><span>@_inferenceResult.inference_propability.Top2</span>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    </div>
+    <div>
+        <span>@_inferenceResult.inference.Top3: </span><span>@_inferenceResult.inference_propability.Top3</span>
+
+    </div>
+    <div>
+
+        <span>@_inferenceResult.inference.Top4: </span><span>@_inferenceResult.inference_propability.Top4</span>
+    </div>
+
+}
+
+@code{
+
+    InferenceResult _inferenceResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetData();
+    }
+
+    async Task GetData()
+    {
+        HttpResponseMessage response = await Http.GetAsync("classify");
+        if (response.IsSuccessStatusCode)
+        {
+            string content = await response.Content.ReadAsStringAsync();
+            _inferenceResult = JsonConvert.DeserializeObject<InferenceResult>(content);
+            StateHasChanged();
+            Thread.Sleep(100);
+            await GetData();
+        }
+    }
+
+
+    public class Format
+    {
+        public string bgColor { get; set; }
+        public bool highlight { get; set; }
+        public string highlightScaling { get; set; }
+    }
+
+    public class Highlight2
+    {
+        public Format format { get; set; }
+        public string value { get; set; }
+    }
+
+    public class HighlightClass
+    {
+        public HighlightClass Highlight { get; set; }
+    }
+
+    public class Inference
+    {
+        public string Top1 { get; set; }
+        public string Top2 { get; set; }
+        public string Top3 { get; set; }
+        public string Top4 { get; set; }
+    }
+
+    public class InferencePropability
+    {
+        public string Top1 { get; set; }
+        public string Top2 { get; set; }
+        public string Top3 { get; set; }
+        public string Top4 { get; set; }
+    }
+
+    public class Inferencetime
+    {
+        public string Time { get; set; }
+    }
+
+    public class InferenceResult
+    {
+        public HighlightClass Highlight { get; set; }
+        public Inference inference { get; set; }
+        public InferencePropability inference_propability { get; set; }
+        public Inferencetime inferencetime { get; set; }
+    }
+}

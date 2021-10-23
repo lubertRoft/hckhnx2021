@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using System.Net.Http;
 
 namespace HckHnx.WebApp.Server
 {
@@ -24,6 +26,17 @@ namespace HckHnx.WebApp.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddScoped(sp => new HttpClient
+            {
+                BaseAddress = new Uri("http://169.254.121.128")
+            });
+            //services.AddCors(policy =>
+            //{
+            //    policy.AddPolicy("_myAllowSpecificOrigins", builder => builder.WithOrigins("http://external:9000/")
+            //                         .AllowAnyMethod()
+            //                         .AllowAnyHeader()
+            //                         .AllowCredentials());
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
