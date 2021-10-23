@@ -1,16 +1,51 @@
 ﻿@page "/counter"
+@inject IJSRuntime JSRuntime
 
-<h1>Counter</h1>
+<h1>Fun Blazor Web Camera Application</h1>
 
-<p>Current count: @currentCount</p>
+<div>
+    <canvas id="@options.CanvasID"
+            style="background-color:lightgray;"
+            width="@options.Width"
+            height="360">
+    </canvas>
+</div>
+<div>
+    <button @onclick="Start">Start</button>
+</div>
+<div>
+    <video id="@options.VideoID"
+           style="background-color:lightblue; visibility:hidden;"
+           width="@options.Width">
+        Video stream not available.
+    </video>
+</div>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
+@code{
+    public class WebCamOptions
     {
-        currentCount++;
+        public int Width { get; set; } = 320;
+        public string VideoID { get; set; }
+        public string CanvasID { get; set; }
+        public string Filter { get; set; } = null;
+    }
+
+    WebCamOptions options = new WebCamOptions()
+    {
+        CanvasID = "canvas",
+        VideoID = "video"
+    };
+
+    protected override void OnInitialized()
+    {
+
+        //options.Filter =
+        //    "contrast(1.4) sepia(0.2) blur(3px) saturate(200%) hue-rotate(200deg)";
+        options.Width = 480;
+    }
+
+    public async Task Start()
+    {
+        await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
     }
 }

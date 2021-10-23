@@ -1,8 +1,10 @@
 ﻿@page "/"
-@using System.Text
 @using System.Threading
 @using Newtonsoft.Json
+@using System.Timers;
 @inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
 
 @if (_inferenceResult != null)
 {
@@ -24,29 +26,141 @@
     </div>
 
 }
+<div>
+    <canvas id="@options.CanvasID"
+            class="driver-image"
+            style='@(_shuffle==10 ? "filter: blur(8px);-webkit-filter: blur(20px);":"")'
+            width="@options.Width"
+            height="360">
+    </canvas>
+</div>
+
+<div>
+    <video id="@options.VideoID"
+           style="background-color:lightblue; visibility:hidden;"
+           width="@options.Width">
+        Video stream not available.
+    </video>
+</div>
+@*<div class="driver-image" style='background-image: url("@_imageResult"); @(_shuffle==10 ? "filter: blur(8px);-webkit-filter: blur(8px);":""))'></div>*@
+@if (_shuffle < 0)
+{
+
+}
+else if (_shuffle >= 0 && _shuffle < 10)
+{
+
+    <div class="grid-container-left">
+        @*<div class="grid-cell"><div class="roi animation"></div></div>*@
+        <div class="grid-cell"><div class="roi @(_shuffle == 0 ? "animation-green" : "d-none")"></div>                                    </div>
+        <div class="grid-cell"><div class="roi  @(_shuffle == 11 ? "animation-red" : "d-none")"></div>  </div>
+        <div class="grid-cell"><div class="roi  @(_shuffle == 2 ? "animation-green" :"d-none")"></div>   </div>
+        <div class="grid-cell"><div class="roi  @(_shuffle == 33 ? "animation-green":"d-none")"></div>    </div>
+    </div>
+    <div class="grid-container-right">
+        <div class="grid-cell"><div class="roi  @(_shuffle == 11 ? "animation-green":"d-none")"></div> </div>
+        <div class="grid-cell"><div class="roi  @(_shuffle == 3 ? "animation-green":"d-none")"></div> </div>
+        <div class="grid-cell"><div class="roi  @(_shuffle == 1 ? "animation-red":"d-none")"></div> </div>
+        <div class="grid-cell"><div class="roi  @(_shuffle == 77 ? "animation-green":"d-none")"></div> </div>
+
+    </div>
+}
+else if (_shuffle == 10)
+{
+    <div class="success-msg">
+        <div class="w-100 text-center">
+            <h1 class="text-success font-weight-bold">Alles klar. Starte Motor...</h1>
+        </div>
+    </div>
+}
 
 @code{
-
+    Random _random;
+    int _shuffle = -1;
+    string _imageResult = "/img/test.png";
     InferenceResult _inferenceResult;
+
+    private System.Timers.Timer _timer;
+
 
     protected override async Task OnInitializedAsync()
     {
-        await GetData();
+        //await GetData();
+        //await GetImage();
+        SetTimer();
+    }
+
+    void SetTimer()
+    {
+        _timer = new System.Timers.Timer();
+        _timer.Interval = 3000;
+        _timer.Elapsed += NotifyTimerElapsed;
+        _timer.Enabled = true;
+    }
+
+    private void NotifyTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        Start();
+        Shuffle();
+    }
+    public class WebCamOptions
+    {
+        public int Width { get; set; } = 320;
+        public string VideoID { get; set; }
+        public string CanvasID { get; set; }
+        public string Filter { get; set; } = null;
+    }
+
+    WebCamOptions options = new WebCamOptions()
+    {
+        CanvasID = "canvas",
+        VideoID = "video"
+    };
+    public async Task Start()
+    {
+        await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
+    }
+    void Shuffle()
+    {
+        if (_shuffle < 10)
+        {
+            _random = new Random();
+            _shuffle += 1; //_random.Next(0, 8);
+
+            Console.WriteLine(_shuffle);
+            if (_shuffle == 3)
+            {
+                _shuffle = 10;
+            }
+            StateHasChanged();
+        }
+
     }
 
     async Task GetData()
     {
-        HttpResponseMessage response = await Http.GetAsync("classify");
+        HttpResponseMessage response = await Http.GetAsync("camera/classify");
         if (response.IsSuccessStatusCode)
         {
             string content = await response.Content.ReadAsStringAsync();
             _inferenceResult = JsonConvert.DeserializeObject<InferenceResult>(content);
             StateHasChanged();
-            Thread.Sleep(100);
+            //Thread.Sleep(100);
             await GetData();
         }
     }
-
+    async Task GetImage()
+    {
+        HttpResponseMessage response = await Http.GetAsync("camera/image");
+        if (response.IsSuccessStatusCode)
+        {
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            _imageResult = $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
+            StateHasChanged();
+            Thread.Sleep(100);
+            await GetImage();
+        }
+    }
 
     public class Format
     {

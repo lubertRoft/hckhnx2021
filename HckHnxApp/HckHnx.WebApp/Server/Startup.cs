@@ -28,15 +28,8 @@ namespace HckHnx.WebApp.Server
             services.AddRazorPages();
             services.AddScoped(sp => new HttpClient
             {
-                BaseAddress = new Uri("http://169.254.121.128")
+                BaseAddress = new Uri("http://169.254.99.182")
             });
-            //services.AddCors(policy =>
-            //{
-            //    policy.AddPolicy("_myAllowSpecificOrigins", builder => builder.WithOrigins("http://external:9000/")
-            //                         .AllowAnyMethod()
-            //                         .AllowAnyHeader()
-            //                         .AllowCredentials());
-            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
