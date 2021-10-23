@@ -15,7 +15,16 @@
     position: absolute;
     top: 30vh;
     z-index: 1;
+    text-align: center;
     width: 100%;
+}
+
+.user-msg-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2em;
+    background-color: rgba(0, 0, 0, 0.5);
+    /*border-radius: 20px;*/
 }
 
 .user-msg-text {
@@ -47,13 +56,6 @@
     height: 37%;
 }
 
-.roi {
-    border-radius: 20px;
-    border: white 5px solid;
-    box-shadow: 0px 0px 10px white;
-    height: 100%;
-    width: 100%;
-}
 
 .animation-green {
     animation: colorize-green 3s ease-in-out;
@@ -63,36 +65,44 @@
     animation: colorize-red 3s ease-in-out;
 }
 
+.roi {
+    border-radius: 20px;
+    border: white 10px solid;
+    box-shadow: 0px 0px 10px white;
+    height: 100%;
+    width: 100%;
+}
+
 @keyframes colorize-green {
     0% {
-        border: white 5px solid;
+        border: white 10px solid;
         box-shadow: 0px 0px 10px white;
     }
 
     50% {
-        border: white 5px solid;
+        border: white 10px solid;
         box-shadow: 0px 0px 10px white;
     }
 
     100% {
-        border: green 5px solid;
+        border: green 10px solid;
         box-shadow: 0px 0px 10px green;
     }
 }
 
 @keyframes colorize-red {
     0% {
-        border: white 5px solid;
+        border: white 10px solid;
         box-shadow: 0px 0px 10px white;
     }
 
     70% {
-        border: white 5px solid;
+        border: white 10px solid;
         box-shadow: 0px 0px 10px white;
     }
 
     100% {
-        border: red 5px solid;
+        border: red 10px solid;
         box-shadow: 0px 0px 10px red;
     }
 }
