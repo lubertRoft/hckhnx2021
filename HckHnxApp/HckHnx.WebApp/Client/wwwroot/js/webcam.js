@@ -61,5 +61,11 @@ function computeFrame() {
 }
 
 window.WebCamFunctions = {
-    start: (options) => { onStart(options); }
+    start: (options) => {
+        setTimeout(function () {
+
+            onStart(options);
+        },
+            500);
+    }
 };

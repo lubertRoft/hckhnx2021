@@ -1,35 +1,14 @@
 ﻿@page "/"
-@using System.Threading
-@using Newtonsoft.Json
+
 @using System.Timers;
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
+@inject NavigationManager _navigationManager
 
-
-@if (_inferenceResult != null)
-{
-    <div>
-        <span>@_inferenceResult.inference.Top1: </span><span>@_inferenceResult.inference_propability.Top1</span>
-
-    </div>
-    <div>
-        <span>@_inferenceResult.inference.Top2: </span><span>@_inferenceResult.inference_propability.Top2</span>
-
-    </div>
-    <div>
-        <span>@_inferenceResult.inference.Top3: </span><span>@_inferenceResult.inference_propability.Top3</span>
-
-    </div>
-    <div>
-
-        <span>@_inferenceResult.inference.Top4: </span><span>@_inferenceResult.inference_propability.Top4</span>
-    </div>
-
-}
 <div>
     <canvas id="@options.CanvasID"
             class="driver-image"
-            style='@(_shuffle==10 ? "filter: blur(8px);-webkit-filter: blur(20px);":"")'
+            style='@(_counter >= 6 ? "filter: blur(8px);-webkit-filter: blur(20px);":"") @(_counter < 2 ? "filter: blur(4px) grayscale(1);":"")'
             width="@options.Width"
             height="360">
     </canvas>
@@ -37,72 +16,101 @@
 
 <div>
     <video id="@options.VideoID"
-           style="background-color:lightblue; visibility:hidden;"
+           style="visibility:hidden;"
            width="@options.Width">
         Video stream not available.
     </video>
 </div>
-@*<div class="driver-image" style='background-image: url("@_imageResult"); @(_shuffle==10 ? "filter: blur(8px);-webkit-filter: blur(8px);":""))'></div>*@
-@if (_shuffle < 0)
+@*<div class="driver-image" style='background-image: url("@_imageResult"); @(_counter==10 ? "filter: blur(8px);-webkit-filter: blur(8px);":""))'></div>*@
+@if (_counter == 0)
 {
-
+    <div class="user-msg">
+        <div class="w-100 text-center">
+            <h1 class="text-white user-msg-text">
+                Analysiere Fahrtüchtigkeit...
+            </h1>
+        </div>
+    </div>
 }
-else if (_shuffle >= 0 && _shuffle < 10)
+@if (_counter == 1)
+{
+    <div class="user-msg">
+        <div class="w-100 text-center">
+            <h2 class="text-white user-msg-text">
+                Unregelmäßigkeit erkannt.
+            </h2>
+            <h3 class="text-white user-msg-text">
+                Es folgt ein kurzer Test.
+            </h3>
+            <button class="btn btn-light btn-lg pt-3 pb-2 px-5 mt-3 border-0 animate-btn-press">
+                <h3>Los geht's</h3>
+            </button>
+        </div>
+    </div>
+}
+@if (_counter >= 2 && _counter < 6)
 {
 
     <div class="grid-container-left">
         @*<div class="grid-cell"><div class="roi animation"></div></div>*@
-        <div class="grid-cell"><div class="roi @(_shuffle == 0 ? "animation-green" : "d-none")"></div>                                    </div>
-        <div class="grid-cell"><div class="roi  @(_shuffle == 11 ? "animation-red" : "d-none")"></div>  </div>
-        <div class="grid-cell"><div class="roi  @(_shuffle == 2 ? "animation-green" :"d-none")"></div>   </div>
-        <div class="grid-cell"><div class="roi  @(_shuffle == 33 ? "animation-green":"d-none")"></div>    </div>
+        <div class="grid-cell"><div class="roi @(_counter == 2 ? "animation-green" : "d-none")"></div>                                    </div>
+        <div class="grid-cell"><div class="roi d-none"></div>  </div>
+        <div class="grid-cell"><div class="roi  @(_counter == 4 ? "animation-green" :"d-none")"></div>   </div>
+        <div class="grid-cell"><div class="roi  d-none"></div>    </div>
     </div>
     <div class="grid-container-right">
-        <div class="grid-cell"><div class="roi  @(_shuffle == 11 ? "animation-green":"d-none")"></div> </div>
-        <div class="grid-cell"><div class="roi  @(_shuffle == 3 ? "animation-green":"d-none")"></div> </div>
-        <div class="grid-cell"><div class="roi  @(_shuffle == 1 ? "animation-red":"d-none")"></div> </div>
-        <div class="grid-cell"><div class="roi  @(_shuffle == 77 ? "animation-green":"d-none")"></div> </div>
+        <div class="grid-cell"><div class="roi  d-none"></div> </div>
+        <div class="grid-cell"><div class="roi  @(_counter == 5 ? "animation-green":"d-none")"></div> </div>
+        <div class="grid-cell"><div class="roi  @(_counter == 3 ? "animation-red":"d-none")"></div> </div>
+        <div class="grid-cell"><div class="roi  d-none"></div> </div>
 
     </div>
 }
-else if (_shuffle == 10)
+@if (_counter >= 6)
 {
-    <div class="success-msg">
+    <div class="user-msg">
         <div class="w-100 text-center">
-            <h1 class="text-success font-weight-bold">Alles klar. Starte Motor...</h1>
+            <h1 class="text-white user-msg-text">
+                Alles klar.
+            </h1>
+            <h1 class="text-white user-msg-text">
+                Starte Motor...
+            </h1>
         </div>
     </div>
 }
 
 @code{
-    Random _random;
-    int _shuffle = -1;
-    string _imageResult = "/img/test.png";
-    InferenceResult _inferenceResult;
+    int _counter = -1;
 
     private System.Timers.Timer _timer;
 
-
     protected override async Task OnInitializedAsync()
     {
-        //await GetData();
-        //await GetImage();
-        SetTimer();
-    }
+        //options.Filter = "contrast(1.4) sepia(0.2) blur(3px) saturate(200%) hue-rotate(200deg)";
 
-    void SetTimer()
-    {
+        await StartVideo();
         _timer = new System.Timers.Timer();
         _timer.Interval = 3000;
         _timer.Elapsed += NotifyTimerElapsed;
         _timer.Enabled = true;
     }
 
+
     private void NotifyTimerElapsed(object sender, ElapsedEventArgs e)
     {
-        Start();
-        Shuffle();
+        if (_counter < 8)
+        {
+            _counter += 1; //_random.Next(0, 8);
+
+        }
+        else
+        {
+            _counter = -1;
+        }
+        StateHasChanged();
     }
+
     public class WebCamOptions
     {
         public int Width { get; set; } = 320;
@@ -116,96 +124,9 @@ else if (_shuffle == 10)
         CanvasID = "canvas",
         VideoID = "video"
     };
-    public async Task Start()
+
+    public async Task StartVideo()
     {
         await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
-    }
-    void Shuffle()
-    {
-        if (_shuffle < 10)
-        {
-            _random = new Random();
-            _shuffle += 1; //_random.Next(0, 8);
-
-            Console.WriteLine(_shuffle);
-            if (_shuffle == 3)
-            {
-                _shuffle = 10;
-            }
-            StateHasChanged();
-        }
-
-    }
-
-    async Task GetData()
-    {
-        HttpResponseMessage response = await Http.GetAsync("camera/classify");
-        if (response.IsSuccessStatusCode)
-        {
-            string content = await response.Content.ReadAsStringAsync();
-            _inferenceResult = JsonConvert.DeserializeObject<InferenceResult>(content);
-            StateHasChanged();
-            //Thread.Sleep(100);
-            await GetData();
-        }
-    }
-    async Task GetImage()
-    {
-        HttpResponseMessage response = await Http.GetAsync("camera/image");
-        if (response.IsSuccessStatusCode)
-        {
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-            _imageResult = $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
-            StateHasChanged();
-            Thread.Sleep(100);
-            await GetImage();
-        }
-    }
-
-    public class Format
-    {
-        public string bgColor { get; set; }
-        public bool highlight { get; set; }
-        public string highlightScaling { get; set; }
-    }
-
-    public class Highlight2
-    {
-        public Format format { get; set; }
-        public string value { get; set; }
-    }
-
-    public class HighlightClass
-    {
-        public HighlightClass Highlight { get; set; }
-    }
-
-    public class Inference
-    {
-        public string Top1 { get; set; }
-        public string Top2 { get; set; }
-        public string Top3 { get; set; }
-        public string Top4 { get; set; }
-    }
-
-    public class InferencePropability
-    {
-        public string Top1 { get; set; }
-        public string Top2 { get; set; }
-        public string Top3 { get; set; }
-        public string Top4 { get; set; }
-    }
-
-    public class Inferencetime
-    {
-        public string Time { get; set; }
-    }
-
-    public class InferenceResult
-    {
-        public HighlightClass Highlight { get; set; }
-        public Inference inference { get; set; }
-        public InferencePropability inference_propability { get; set; }
-        public Inferencetime inferencetime { get; set; }
     }
 }

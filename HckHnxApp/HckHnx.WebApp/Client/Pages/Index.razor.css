@@ -11,11 +11,16 @@
     transform: scaleX(-1);
 }
 
-.success-msg {
+.user-msg {
     position: absolute;
     top: 30vh;
     z-index: 1;
     width: 100%;
+}
+
+.user-msg-text {
+    font-size: 100px;
+    text-shadow: 0px 0px 10px white;
 }
 
 .grid-container-left {
@@ -89,5 +94,30 @@
     100% {
         border: red 5px solid;
         box-shadow: 0px 0px 10px red;
+    }
+}
+
+.animate-btn-press {
+    animation: btn-press 2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes btn-press {
+    0% {
+    }
+
+    60% {
+        text-shadow: none;
+        background-color: #d7d7d7;
+    }
+
+    80% {
+        text-shadow: 0px 0px 10px #000;
+        background-color: gray;
+    }
+
+    100% {
+        text-shadow: none;
+        background-color: #d7d7d7;
     }
 }
