@@ -4,129 +4,158 @@
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager _navigationManager
-
-<div>
-    <canvas id="@options.CanvasID"
-            class="driver-image"
-            style='@(_counter >= 6 ? "filter: blur(8px);-webkit-filter: blur(20px);":"") @(_counter < 2 ? "filter: blur(4px) grayscale(1);":"")'
-            width="@options.Width"
-            height="360">
-    </canvas>
-</div>
-
-<div>
-    <video id="@options.VideoID"
-           style="visibility:hidden;"
-           width="@options.Width">
-        Video stream not available.
-    </video>
-</div>
-@*<div class="driver-image" style='background-image: url("@_imageResult"); @(_counter==10 ? "filter: blur(8px);-webkit-filter: blur(8px);":""))'></div>*@
-@if (_counter == 0)
-{
-    <div class="user-msg">
-        <div class="text-center user-msg-container">
-            <h1 class="text-white user-msg-text">
-                Analysiere Fahrtüchtigkeit...
-            </h1>
-        </div>
+    <div class="soberai-icon">
+        <img src="/img/soberai-icon.png" alt="sober ai" width="100" />
     </div>
-}
-@if (_counter == 1)
-{
-    <div class="user-msg">
-        <div class="text-center user-msg-container">
-            <h2 class="text-white user-msg-text">
-                Unregelmäßigkeit erkannt.
-            </h2>
-            <h3 class="text-white user-msg-text">
-                Es folgt ein kurzer Test.
-            </h3>
-            <button class="btn btn-light btn-lg pt-3 pb-2 px-5 mt-3 border-0 animate-btn-press">
-                <h3>Los geht's</h3>
-            </button>
-        </div>
+    <div>
+        <canvas id="@options.CanvasID"
+                class="driver-image"
+                style='@(_counter >= 8 ? "filter: blur(8px);-webkit-filter: blur(20px);":"") @(_counter < 2 ? "filter: blur(4px) grayscale(1);":"")'
+                width="@options.Width"
+                height="360">
+        </canvas>
     </div>
-}
-@if (_counter >= 2 && _counter < 6)
-{
 
-    <div class="grid-container-left">
-        @*<div class="grid-cell"><div class="roi animation"></div></div>*@
-        <div class="grid-cell"><div class="roi @(_counter == 2 ? "animation-green" : "d-none")"></div>                                    </div>
-        <div class="grid-cell"><div class="roi d-none"></div>  </div>
-        <div class="grid-cell"><div class="roi  @(_counter == 4 ? "animation-green" :"d-none")"></div>   </div>
-        <div class="grid-cell"><div class="roi  d-none"></div>    </div>
+    <div>
+        <video id="@options.VideoID"
+               style="visibility:hidden;"
+               width="@options.Width">
+            Video stream not available.
+        </video>
     </div>
-    <div class="grid-container-right">
-        <div class="grid-cell"><div class="roi  d-none"></div> </div>
-        <div class="grid-cell"><div class="roi  @(_counter == 5 ? "animation-green":"d-none")"></div> </div>
-        <div class="grid-cell"><div class="roi  @(_counter == 3 ? "animation-red":"d-none")"></div> </div>
-        <div class="grid-cell"><div class="roi  d-none"></div> </div>
-
-    </div>
-}
-@if (_counter >= 6)
-{
-    <div class="user-msg">
-        <div class="text-center user-msg-container">
-            <h1 class="text-white user-msg-text">
-                Alles klar.
-            </h1>
-            <h1 class="text-white user-msg-text">
-                Starte Motor...
-            </h1>
-        </div>
-    </div>
-}
-
-@code{
-    int _counter = -1;
-
-    private System.Timers.Timer _timer;
-
-    protected override async Task OnInitializedAsync()
+    @*<div class="driver-image" style='background-image: url("@_imageResult"); @(_counter==10 ? "filter: blur(8px);-webkit-filter: blur(8px);":""))'></div>*@
+    @if (_counter == 0)
     {
-        //options.Filter = "contrast(1.4) sepia(0.2) blur(3px) saturate(200%) hue-rotate(200deg)";
+        <div class="user-msg">
+            <div class="text-center user-msg-container">
+                <h1 class="text-white user-msg-text">
+                    Prüfe Fahrtüchtigkeit...
+                </h1>
+            </div>
+        </div>
+    }
+    @if (_counter == 1)
+    {
+        <div class="user-msg">
+            <div class="text-center user-msg-container">
+                <h2 class="text-white user-msg-text">
+                    Unregelmäßigkeit erkannt.
+                </h2>
+            </div>
+        </div>
+    }
+    @if (_counter == 2)
+    {
+        <div class="user-msg">
+            <div class="text-center user-msg-container">
 
-        await StartVideo();
-        _timer = new System.Timers.Timer();
-        _timer.Interval = 3000;
-        _timer.Elapsed += NotifyTimerElapsed;
-        _timer.Enabled = true;
+                <h3 class="text-white user-msg-text">
+                    Es folgt ein kurzer Test.
+                </h3>
+
+            </div>
+        </div>
+    }
+    @if (_counter == 3)
+    {
+        <div class="user-msg">
+            <div class="text-center user-msg-container">
+
+                <h3 class="text-white user-msg-text-sub">
+                    Halte eine Handfläche in den eingeblendeten Rahmen.
+                </h3>
+                <button class="btn btn-light btn-lg pt-3 pb-2 px-5 mt-3 border-0 animate-btn-press">
+                    <h3>Los geht's</h3>
+                </button>
+            </div>
+        </div>
+    }
+    @if (_counter >= 4 && _counter < 8)
+    {
+
+        <div class="grid-container-left">
+            @*<div class="grid-cell"><div class="roi animation"></div></div>*@
+            <div class="grid-cell"><div class="roi @(_counter == 4 ? "animation-green" : "d-none")"></div>                                    </div>
+            <div class="grid-cell"><div class="roi d-none"></div>  </div>
+            <div class="grid-cell"><div class="roi  @(_counter == 6 ? "animation-green" :"d-none")"></div>   </div>
+            <div class="grid-cell"><div class="roi  d-none"></div>    </div>
+        </div>
+        <div class="grid-container-right">
+            <div class="grid-cell"><div class="roi  d-none"></div> </div>
+            <div class="grid-cell"><div class="roi  @(_counter == 7 ? "animation-green":"d-none")"></div> </div>
+            <div class="grid-cell"><div class="roi  @(_counter == 5 ? "animation-red":"d-none")"></div> </div>
+            <div class="grid-cell"><div class="roi  d-none"></div> </div>
+
+        </div>
+    }
+    @if (_counter == 9)
+    {
+        <div class="user-msg">
+            <div class="text-center user-msg-container">
+                <h1 class="text-white user-msg-text">
+                    Alles klar.
+                </h1>
+            </div>
+        </div>
+    }
+    @if (_counter > 9)
+    {
+        <div class="user-msg">
+            <div class="text-center user-msg-container">
+                <h1 class="text-white user-msg-text">
+                    Starte Motor...
+                </h1>
+            </div>
+        </div>
     }
 
+    @code{
+        int _counter = -1;
 
-    private void NotifyTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-        if (_counter < 8)
+        private System.Timers.Timer _timer;
+
+        protected override async Task OnInitializedAsync()
         {
-            _counter += 1; //_random.Next(0, 8);
+            //options.Filter = "contrast(1.4) sepia(0.2) blur(3px) saturate(200%) hue-rotate(200deg)";
 
+            await StartVideo();
+            _timer = new System.Timers.Timer();
+            _timer.Interval = 3000;
+            _timer.Elapsed += NotifyTimerElapsed;
+            _timer.Enabled = true;
         }
-        else
+
+
+        private void NotifyTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            _counter = -1;
+            if (_counter < 10)
+            {
+                _counter += 1; //_random.Next(0, 8);
+
+            }
+            else
+            {
+                _counter = -1;
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
-    }
 
-    public class WebCamOptions
-    {
-        public int Width { get; set; } = 320;
-        public string VideoID { get; set; }
-        public string CanvasID { get; set; }
-        public string Filter { get; set; } = null;
-    }
+        public class WebCamOptions
+        {
+            public int Width { get; set; } = 320;
+            public string VideoID { get; set; }
+            public string CanvasID { get; set; }
+            public string Filter { get; set; } = null;
+        }
 
-    WebCamOptions options = new WebCamOptions()
-    {
-        CanvasID = "canvas",
-        VideoID = "video"
-    };
+        WebCamOptions options = new WebCamOptions()
+        {
+            CanvasID = "canvas",
+            VideoID = "video"
+        };
 
-    public async Task StartVideo()
-    {
-        await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
+        public async Task StartVideo()
+        {
+            await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
+        }
     }
-}
